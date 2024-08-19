@@ -10,6 +10,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
+
 # Django ORM bilan asinxron ishlash uchun juda muhim.
 from asgiref.sync import sync_to_async
 
@@ -32,18 +33,22 @@ async def cmd_start(message: Message) -> None:
 
     user, created = await sync_to_async(User.objects.get_or_create)(
         telegram_id=message.from_user.id,
-        defaults={'username': message.from_user.username}
+        defaults={'username': message.from_user.username,
+                  'lat': message.from_user.lat,
+                  'lon': message.form_user.lon}
     )
 
+    # example for clients
     users = await sync_to_async(lambda: list(User.objects.all()))()
     user_list = "\n".join([f"{u.username}: chat_id: {u.telegram_id}" for u in users])
 
     if created:
         await message.answer(f"Xush kelibsiz, yangi foydalanuvchi!")
     else:
-        date_time = user.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        date_time = user.created_at.strftime('%Y-%m-%d %H:%M:%S')  # 22.04.2024 12:34:05
         await message.answer(f"Siz {date_time} sanada ro'yxatdan o'tgansiz!")
         await message.answer(f"{user_list}")
+        await message.answer_location(latitude='', longitude='')
 
 
 async def main() -> None:
